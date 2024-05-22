@@ -2,6 +2,7 @@
 from odoo import http, models, _, api
 from odoo.http import request
 from datetime import datetime
+import json
 
 required_data = ['default_code', 'name', 'patient_share', 'company_share']
 
@@ -11,9 +12,9 @@ class Service(http.Controller):
     @staticmethod
     def get_product(products, insert=False):
         request.env.cr.execute("""
-        SELECT id 
-        FROM uom_uom 
-        WHERE name = 'Units' ;""")
+                SELECT id
+                FROM uom_uom
+                WHERE name->>'en_US' LIKE 'Units' ;""")
         product_uom_id = request.env.cr.fetchall()
 
         products_list = []
@@ -24,7 +25,7 @@ class Service(http.Controller):
                 message = "Data missing services " + str(dif).replace("'", "")
                 request.cr.execute(
                     "INSERT INTO integration_log(request_date, code, body, reason, active) VALUES ('%s', '400', '%s', '%s', True);" % (
-                    str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
+                        str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
                 products_list.append({
                     'code': 400,
                     'success': False,
@@ -36,7 +37,7 @@ class Service(http.Controller):
                 message = "Data Invalid services [default_code]"
                 request.cr.execute(
                     "INSERT INTO integration_log(request_date, code, body, reason, active) VALUES ('%s', '400', '%s', '%s', True);" % (
-                    str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
+                        str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
                 products_list.append({
                     'code': 400,
                     'success': False,
@@ -48,7 +49,7 @@ class Service(http.Controller):
                 message = "Data Invalid services [name]"
                 request.cr.execute(
                     "INSERT INTO integration_log(request_date, code, body, reason, active) VALUES ('%s', '400', '%s', '%s', True);" % (
-                    str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
+                        str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
                 products_list.append({
                     'code': 400,
                     'success': False,
@@ -61,7 +62,7 @@ class Service(http.Controller):
                 message = "Data Invalid services patient_share or company_share"
                 request.cr.execute(
                     "INSERT INTO integration_log(request_date, code, body, reason, active) VALUES ('%s', '400', '%s', '%s', True);" % (
-                    str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
+                        str(datetime.now()), str(request.jsonrequest).replace("'", ""), message))
                 products_list.append({
                     'code': 400,
                     'success': False,
@@ -98,7 +99,7 @@ class Service(http.Controller):
 
                     elif insert:
                         product_temp = {
-                            'name': product.get('name'),
+                            'name': json.dumps({'en_US': product.get('name')}),
                             'default_code': product.get('default_code'),
                             'detailed_type': 'service',
                             'sale_line_warn': 'no-message',
@@ -120,8 +121,9 @@ class Service(http.Controller):
                             'default_code': product.get('default_code')
                         }
 
-                        request.env.cr.execute("""INSERT INTO product_product%s VALUES %s RETURNING id, default_code;""" % (
-                            str(tuple(product_id.keys())).replace("'", ""), tuple(product_id.values())))
+                        request.env.cr.execute(
+                            """INSERT INTO product_product%s VALUES %s RETURNING id, default_code;""" % (
+                                str(tuple(product_id.keys())).replace("'", ""), tuple(product_id.values())))
                         product_product = request.env.cr.fetchall()[0]
 
                         products_list.append({
@@ -133,6 +135,7 @@ class Service(http.Controller):
                         })
 
                     else:
-                        products_list.append({"id": False, "name": product.get('name'), "default_code": product.get('default_code')})
+                        products_list.append(
+                            {"id": False, "name": product.get('name'), "default_code": product.get('default_code')})
 
         return products_list

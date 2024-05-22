@@ -61,7 +61,7 @@ class Payer(http.Controller):
                 else:
                     doctor_id = {
                         'name': name,
-                        'display_name': name,
+                        # 'display_name': name,
                         'ref': code,
                         'contact_type': 'contact',
                         'doctor': True,
@@ -88,7 +88,7 @@ class Payer(http.Controller):
         else:
             partner_id = {
                 'name': name,
-                'display_name': name,
+                # 'display_name': name,
                 'ref': code,
                 'is_company': True,
                 'contact_type': 'customer',

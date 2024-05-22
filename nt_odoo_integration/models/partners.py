@@ -24,7 +24,7 @@ class OracleResPartner(models.Model):
         ('vendor', 'Vendor'),
         ('both', 'Both'),
         ('contact', 'Contact')
-    ], srting='Contact Type')
+    ], string='Contact Type')
 
     @api.onchange('doctor')
     def compute_doctor_code(self):

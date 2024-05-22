@@ -121,6 +121,7 @@ class PatientInvoice(http.Controller):
     def create_draft_invoice(partner, registration_date, journal_id, accession_number, employee, doctor_id):
         draft_account_move = {
             'move_type': 'out_invoice',
+            'auto_post':'no',
             'state': 'draft',
             'currency_id': request.env.company.currency_id.id,
             'company_id': request.env.company.id,

@@ -10,7 +10,7 @@ from .master_data.payer import Payer
 from .master_data.contract import Contract
 from .master_data.employee import Employee
 from .master_data.service import Service
-from .authenticate import validate_token
+from .authenticate import validate_token, validate_params
 from .master_data.patient_invoice import PatientInvoice
 
 required_data = ['reg_key', 'accession_number', 'patient', 'services', 'branch_id', 'payer', 'contract', 'cash',
@@ -21,13 +21,14 @@ invalid_child_data = ['branch_id', 'payer', 'contract']
 
 class InsertVisit(http.Controller):
     @validate_token
+    # @validate_params(required_data=required_data, invalid_str_data=invalid_str_data,
+    #                  invalid_child_data=invalid_child_data)
     @http.route('/api/v2/Walk_inPatient/InsertVisit', auth='none',
-                csrf=False, methods=['POST'], type='json',
-                special_param='ldm', required_data=required_data, invalid_str_data=invalid_str_data,
-                service_type='insert_visit',
-                invalid_child_data=invalid_child_data)
+                csrf=False, methods=['POST'], type='http',
+                service_type='insert_visit', )
     def insert_visit(self):
-        response = request.jsonrequest
+        #
+        response = request.get_json_data()
         if not response:
             return HandleResponse.error_response(False,
                                                  response=str(response).replace("'", ""),
@@ -48,11 +49,11 @@ class InsertVisit(http.Controller):
                                                      )
 
             try:
-                bool(datetime.strptime(str(request.jsonrequest.get('registeration_date')), '%d/%m/%Y'))
+                bool(datetime.strptime(str(response.get('registeration_date')), '%d/%m/%Y'))
             except ValueError:
                 return HandleResponse.error_response(False,
                                                      response=str(response).replace("'", ""),
-                                                     message="registeration_date %s does not match format" % request.jsonrequest.get(
+                                                     message="registeration_date %s does not match format" % response.get(
                                                          'registeration_date'),
                                                      service_type='insert_visit'
                                                      )
@@ -84,9 +85,10 @@ class InsertVisit(http.Controller):
             body = str(e).replace("'", "")
             response = str(response).replace("'", "")
             user_id = request.env.user.id
+            request.cr.rollback()
             request.cr.execute(
                 "INSERT INTO integration_log(request_date,create_date,create_uid, code, body,service_type ,reason, active) VALUES ('%s','%s','%s', '500', '%s','%s' ,'%s', True);" % (
-                    str(datetime.now()),str(datetime.now()),user_id, body, 'insert_visit', response))
-            return {'code': 500, 'success': False, 'message': str(e)}
+                    str(datetime.now()), str(datetime.now()), user_id, body, 'insert_visit', response))
+            return request.make_json_response({'code': 500, 'success': False, 'message': body}, status=500)
 
         return {'code': 200, 'success': True, 'total_result': invoices_lines_values}

@@ -18,14 +18,28 @@ class Patient(http.Controller):
         country_id = False
         state_id = False
         if patient.get('country'):
-            request.env.cr.execute("""
-            SELECT id 
-            FROM res_country 
-            WHERE name = '%s' 
-            OR code = '%s' ;""" % (
-            patient.get('country').get('name', False), patient.get('country').get('code', False)))
+            patient_country_name = patient.get('country', {}).get('name')  # Extract name safely
+            patient_country_code = patient.get('country', {}).get('code')  # Extract code safely
+            query = """
+            SELECT id
+            FROM res_country
+            WHERE 1=1  
+            """
+            if patient_country_name:
+                query += " AND name->>'en_US' ILIKE %s "
+            if patient_country_code:
+                query += " OR code = %s "
+            params = []
+            if patient_country_name:
+                params.append(f"%{patient_country_name}%")
+            if patient_country_code:
+                params.append(patient_country_code)
+
+            # Execute the query
+            request.env.cr.execute(query, params)
             country_id = request.env.cr.fetchall()
 
+        #     get state
         if patient.get('state', False):
             request.env.cr.execute("""
             SELECT id 
@@ -50,10 +64,11 @@ class Patient(http.Controller):
                     is_company = True
             age = ""
             if patient.get('age', False):
-                age = "day: " + str(patient.get('age', False).get('day')) + " month: " + str(patient.get('age', False).get('month')) + " year: " + str(patient.get('age', False).get('year'))
+                age = "day: " + str(patient.get('age', False).get('day')) + " month: " + str(
+                    patient.get('age', False).get('month')) + " year: " + str(patient.get('age', False).get('year'))
             patient_data = {
                 'name': patient.get('name', None),
-                'display_name': patient.get('name', None),
+                # 'display_name': patient.get('name', None),
                 'gender': patient.get('gender', None),
                 'card_number': patient.get('card_number', None),
                 'patient_number': patient.get('patientNumber', None),
@@ -73,7 +88,7 @@ class Patient(http.Controller):
             patient_data = dict((k, v) for k, v in patient_data.items() if v is not None)
 
             request.env.cr.execute("""INSERT INTO res_partner%s VALUES %s RETURNING id, name;""" % (
-            str(tuple(patient_data.keys())).replace("'", ""), tuple(patient_data.values())))
+                str(tuple(patient_data.keys())).replace("'", ""), tuple(patient_data.values())))
 
             results = request.env.cr.fetchall()
             patient_id = {'id': results[0][0], 'name': results[0][1]}
