@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+
+        <record id="view_account_payment_form_inherit_integration" model="ir.ui.view">
+            <field name="name">view_account_payment_form_inherit_integration</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//group[@name='group2']" position="inside">
+                    <field name="branch_id"/>
+                    <field name="accession_number"/>
+                    <field name="receipt_no"/>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

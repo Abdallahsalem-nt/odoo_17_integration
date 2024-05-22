@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_integration_log,integration.log,model_integration_log,nt_odoo_integration.group_integration_odoo_log_access,1,0,0,0

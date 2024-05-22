@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="view_partner_form_inherit_integration" model="ir.ui.view">
+            <field name="name">view_partner_form_inherit_integration</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='vat']" position="after">
+                    <field name="ldm_contract_ids" widget="many2many_tags" options="{'no_create':True}"
+                           invisible="company_type == 'person' "/>
+                    <field name="doctor" invisible="company_type != 'person' "/>
+                    <field name="doctor_code"
+                           invisible=" doctor != True or company_type != 'person'"/>
+                    <field name="center"/>
+                    <field name="center_code"/>
+                    <field name="is_public_audience"/>
+                    <field name="contact_type"/>
+                    <field name="card_number" invisible="0"/>
+                    <field name="patient_number" invisible="0"/>
+                    <field name="patient_age" invisible="0"/>
+                    <field name="gender" invisible="0"/>
+                    <field name="is_company" invisible="1"/>
+                    <field name="separated_invoices" invisible="company_type == 'person' "/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

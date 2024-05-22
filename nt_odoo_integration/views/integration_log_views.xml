@@ -1,0 +1,91 @@
+<odoo>
+    <data>
+
+        <record id="integration_log_tree_view" model="ir.ui.view">
+            <field name="name">integration_log_tree_view</field>
+            <field name="model">integration.log</field>
+            <field name="arch" type="xml">
+                <tree string="Integration Log">
+                    <field name="active" invisible="1"/>
+                    <field name="body" optional="show"/>
+                    <field name="reason" optional="show"/>
+                    <field name="code"/>
+                    <field name="request_date"/>
+                    <field name="service_type"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="integration_log_form_view" model="ir.ui.view">
+            <field name="name">integration_log_form_view</field>
+            <field name="model">integration.log</field>
+            <field name="arch" type="xml">
+                <form string="Integration Log">
+                    <sheet>
+                        <group>
+                            <field name="body"/>
+                            <field name="reason"/>
+                            <field name="code"/>
+                            <field name="request_date"/>
+                            <field name="service_type"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="integration_log_search_view" model="ir.ui.view">
+            <field name="name">integration.log.search.view</field>
+            <field name="model">integration.log</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="body"/>
+                    <field name="reason"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_integration_log_search" model="ir.ui.view">
+            <field name="name">integration.log.search</field>
+            <field name="model">integration.log</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="body" string="Body"/>
+                    <field name="reason" string="Reason"/>
+                    <filter name="today_records" string="Today's Records"
+                            domain="[('create_date', '>=',context_today().strftime('%Y-%m-%d'))]"/>
+                    <group expand="1" string="Group By">
+                        <filter name="group_by_code" string="Code" context="{'group_by':'code'}"/>
+                        <filter name="group_by_service_type" string="Type" context="{'group_by':'service_type'}"/>
+                        <filter name="group_by_created_by" string="Created By" context="{'group_by':'create_uid'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="action_integration_log" model="ir.actions.act_window">
+            <field name="name">Integration Log</field>
+            <field name="res_model">integration.log</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <menuitem id="integration_log_root_menu"
+                  name="Integration Log"
+                  sequence="98"
+                  groups="nt_odoo_integration.group_integration_odoo_log_access"/>
+
+        <menuitem id="integration_log_menu" name="Integration Log"
+                  parent="integration_log_root_menu"
+                  action="nt_odoo_integration.action_integration_log"
+                  sequence="5"
+                  groups="nt_odoo_integration.group_integration_odoo_log_access"/>
+
+    </data>
+</odoo>

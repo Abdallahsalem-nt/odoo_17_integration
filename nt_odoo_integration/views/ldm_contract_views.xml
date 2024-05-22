@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_ldm_contract_tree">
+            <field name="name">LDM Contract</field>
+            <field name="model">ldm.contract</field>
+            <field name="arch" type="xml">
+                <tree string="LDM Contract Tree">
+                    <field name="contract_name"/>
+                    <field name="contract_code"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_ldm_contract_form">
+            <field name="name">LDM Contract</field>
+            <field name="model">ldm.contract</field>
+            <field name="arch" type="xml">
+                <form string="LDM Contract Form">
+                    <sheet>
+                        <div class="oe_title">
+
+                            <h2>
+                                <field name="contract_name" required="1"/>
+                            </h2>
+
+                        </div>
+                        <group>
+                            <group>
+                                <field name="contract_code" required="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_ldm_contract" model="ir.actions.act_window">
+            <field name="name">Payer Contract</field>
+            <field name="res_model">ldm.contract</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+                id="menu_ldm_contract_configuration"
+                name="Payer Contract"
+                parent="sale.menu_sale_config"
+                action="action_ldm_contract"
+                sequence="11"/>
+    </data>
+</odoo>

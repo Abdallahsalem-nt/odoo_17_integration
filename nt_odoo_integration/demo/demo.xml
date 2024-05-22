@@ -1,0 +1,12 @@
+<odoo>
+    <data>
+
+        <record id="product_product_discount" model="product.product">
+            <field name="name">Discount</field>
+            <field name="default_code">INT-DISC</field>
+            <field name="detailed_type">service</field>
+        </record>
+
+
+    </data>
+</odoo>
