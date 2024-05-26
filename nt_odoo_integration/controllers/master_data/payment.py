@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import http, models, _, api
 from odoo.http import request
+import json
 
 
 class Payment(http.Controller):
@@ -31,9 +32,17 @@ class Payment(http.Controller):
         WHERE code = '%s';""" % ('D' + payment_method.upper()))
         journal_id = request.env.cr.fetchall()
         if not journal_id:
-            request.cr.execute(
-                "INSERT INTO account_journal(name, type, code, invoice_reference_type, invoice_reference_model, company_id, active) VALUES('%s', '%s', '%s', 'invoice', 'odoo', 1, True) RETURNING id;" % (
-                    payment_type, payment_method, 'D' + payment_method.upper()))
+            name_jsonb = json.dumps({'en_US': payment_method})
+            name_str = payment_method
+            code_str = 'D' + payment_method.upper()
+
+            query = """
+                    INSERT INTO account_journal(
+                        name, type, code, invoice_reference_type, invoice_reference_model, company_id, active
+                    ) VALUES (%s::jsonb, %s, %s, 'invoice', 'odoo', 1, True) RETURNING id;
+                """
+            request.env.cr.execute(query, (name_jsonb, name_str, code_str))
+
             journal_id = request.env.cr.fetchall()
         return journal_id[0][0]
 

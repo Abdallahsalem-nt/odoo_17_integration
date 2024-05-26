@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import http, models, _, api
+from odoo import http, models, _, api, Command
 from odoo.http import request
 from ..handle_response import HandleResponse
 from datetime import datetime
@@ -170,7 +170,7 @@ class PatientInvoice(http.Controller):
             if 'center_id' in payer:
                 # @todo: center id error
                 pass
-                # dic['center_id'] = payer['center_id'].get('id') if payer['center_id'] else False,
+                dic['center_id'] = payer['center_id'].get('id') if payer['center_id'] else None,
             if 'doctor_id' in payer:
                 dic['doctor_id'] = payer['doctor_id'].get('id') if payer['doctor_id'] else False,
             if 'partner_id' in payer:
@@ -178,4 +178,4 @@ class PatientInvoice(http.Controller):
                 dic['service_payer_id'] = payer['partner_id'].get('id') if payer['partner_id'] else False,
             if 'payer' in payer:
                 dic['service_payer_id'] = payer['payer'].get('id') if payer['payer'] else False,
-        return (0, 0, dic)
+        return (Command.create(dic))

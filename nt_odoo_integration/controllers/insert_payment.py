@@ -23,7 +23,7 @@ class InsertPayment(http.Controller):
                 service_type='insert_payment',
                 invalid_child_data=invalid_child_data)
     def insert_payment(self):
-        response = request.jsonrequest
+        response = request.get_json_data()
         if not response:
             return HandleResponse.error_response(False,
                                                  response=response,
@@ -37,7 +37,7 @@ class InsertPayment(http.Controller):
                                                      service_type='insert_payment')
 
             try:
-                bool(datetime.strptime(str(request.jsonrequest.get('payment_date')), '%d/%m/%Y'))
+                bool(datetime.strptime(str(response.get('payment_date')), '%d/%m/%Y'))
             except ValueError:
                 return HandleResponse.error_response(False,
                                                      response=str(response).replace("'", ""),
@@ -93,6 +93,7 @@ class InsertPayment(http.Controller):
                 'ldm_payment_amount': int(response.get("amount")),
                 'partner_id': patient_id.get('id'),
                 'payment_method': response.get("payment_method").lower(),
+                # @todo: equal to payment_method_line_id in v 17
                 'payment_method_line_id': manual_id,
                 'journal_id': branch_id.get('journal'),
                 'branch_id': branch_id.get('analytic'),
@@ -117,4 +118,5 @@ class InsertPayment(http.Controller):
             "INSERT INTO integration_log(request_date,create_date ,create_uid,code, body,service_type,reason, active) VALUES ('%s','%s','%s', '200', '%s','%s', '%s', True);" % (
                 str(datetime.now()), str(datetime.now()), user_id, str(response).replace("'", ""), 'insert_payment',
                 "The Payment has been created successfully"))
-        return {'code': 200, 'success': True, 'message': "The Payment has been created successfully"}
+        return request.make_json_response(
+            {'code': 200, 'success': True, 'message': "The Payment has been created successfully"}, status=200)

@@ -22,7 +22,8 @@ class InsertService(http.Controller):
                 service_type='insert_service',
                 invalid_child_data=invalid_child_data)
     def insert_service(self):
-        response = request.jsonrequest
+        # get_json_data replaced request.jsonrequest
+        response = request.get_json_data()
         if not response:
             return HandleResponse.error_response(False,
                                                  response=str(response).replace("'", ""),
@@ -31,17 +32,17 @@ class InsertService(http.Controller):
                                                  )
         try:
             try:
-                bool(datetime.strptime(str(request.jsonrequest.get('updateDate')), '%d/%m/%Y'))
+                bool(datetime.strptime(str(response.get('updateDate')), '%d/%m/%Y'))
             except ValueError:
                 return HandleResponse.error_response(False,
                                                      response=str(response).replace("'", ""),
-                                                     message="updateDate %s does not match format" % request.jsonrequest.get(
+                                                     message="updateDate %s does not match format" % response.get(
                                                          'updateDate'),
                                                      service_type='insert_service'
 
                                                      )
 
-            request.env.cr.execute("""SELECT name, patient_id, journal_id, analytic_account_id, contract_id
+            request.env.cr.execute("""SELECT name, patient_id, journal_id,analytic_distribution-->'133', contract_id
             FROM account_move_line WHERE reg_key = '%s' AND payer_id IS NULL""" % response.get("reg_key"))
             move_lines = request.env.cr.fetchall()
             if not move_lines:
@@ -65,11 +66,12 @@ class InsertService(http.Controller):
 
         except Exception as e:
             body = str(e).replace("'", "")
+            request.cr.rollback()
             response = str(response).replace("'", "")
             user_id = request.env.user.id
             request.cr.execute(
                 "INSERT INTO integration_log(request_date,create_date, create_uid,code, body, service_type,reason, active) VALUES ('%s','%s','%s', '500', '%s','%s', '%s', True);" % (
-                    str(datetime.now()),str(datetime.now()),user_id, body, 'insert_service', response))
-            return {'code': 500, 'success': False, 'message': str(e)}
+                    str(datetime.now()), str(datetime.now()), user_id, body, 'insert_service', response))
+            return request.make_json_response({'code': 500, 'success': False, 'message': str(e)})
 
-        return {'code': 200, 'success': True, 'total_result': invoices_lines_values}
+        return request.make_json_response({'code': 200, 'success': True, 'total_result': invoices_lines_values})

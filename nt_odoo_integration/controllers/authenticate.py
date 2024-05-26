@@ -140,12 +140,12 @@ def validate_token(func):
         if not access_token:
             result = {'code': 401, 'success': False,
                       'message': "access token not found, missing access token in request header"}
-            return result
+            return request.make_json_response(result, status=200)
         user_id = request.env["res.users.apikeys"]._check_credentials(scope="rpc", key=access_token)
         if not user_id:
             result = {'code': 401, 'success': False,
                       'message': "Authentication Failed"}
-            return result
+            return request.make_json_response(result, status=200)
         request.env.cr.execute(f'''
                             SELECT create_date
                             FROM res_users_apikeys WHERE index= '{access_token[:8]}' LIMIT 1;

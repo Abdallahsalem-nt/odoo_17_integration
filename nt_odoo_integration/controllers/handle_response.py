@@ -26,7 +26,7 @@ class HandleResponse:
             "INSERT INTO integration_log(request_date,create_date,create_uid,code, body, reason,service_type, active) VALUES ('%s', '%s','%s','%s', '%s', '%s','%s', True);" % (
                 str(datetime.now()), str(datetime.now()), user_id, code, str(response).replace("'", ""), message,
                 service_type))
-        return result
+        return request.make_json_response(result)
 
     @staticmethod
     def success_response(service, message, reg_key, service_type=False):
@@ -40,9 +40,11 @@ class HandleResponse:
                 "reg_key: " + str(reg_key) + ' ' + str(service).replace("'", ""), service_type,
                 message_str))
 
-        return {
-            "code": 200,
-            "success": True,
-            "default_code": service.get('default_code'),
-            "message": message_str,
-        }
+        return \
+ \
+            request.make_json_response({
+                "code": 200,
+                "success": True,
+                "default_code": service.get('default_code'),
+                "message": message_str,
+            }, status=401)
