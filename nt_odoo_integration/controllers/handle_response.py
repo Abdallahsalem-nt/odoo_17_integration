@@ -31,17 +31,18 @@ class HandleResponse:
     @staticmethod
     def success_response(service, message, reg_key, service_type=False):
         last = datetime.now()
+        message_str = str(message).replace("{", "-").replace("}", "-").replace("'", "")
         user_id = request.env.user.id
         _logger.warning('ldm transactions end at %s.', last)
         request.env.cr.execute(
             "INSERT INTO integration_log(request_date,create_date ,create_uid,code, body,service_type, reason, active) VALUES ('%s','%s' ,'%s' ,'200', '%s','%s', '%s', True);" % (
-                str(datetime.now()), str(datetime.now()),user_id,
+                str(datetime.now()), str(datetime.now()), user_id,
                 "reg_key: " + str(reg_key) + ' ' + str(service).replace("'", ""), service_type,
-                message))
+                message_str))
 
         return {
             "code": 200,
             "success": True,
             "default_code": service.get('default_code'),
-            "message": message,
+            "message": message_str,
         }

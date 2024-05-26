@@ -3,13 +3,15 @@ from odoo import http, models, _, api
 from odoo.http import request
 from ..handle_response import HandleResponse
 from datetime import datetime
+import json
 
 
 class PatientInvoice(http.Controller):
 
     @staticmethod
     def get_patient_invoice(reg_key, accession_number, services, registration_date, patient_id, contract_id, journal,
-                            discount, analytic, payer_id, representative, employee, type='visit', service_type='insert_visit'):
+                            discount, analytic, payer_id, representative, employee, type='visit',
+                            service_type='insert_visit'):
         result = []
         result.extend(list(filter(lambda d: 'code' in d, services)))
         services = list(filter(lambda d: 'code' not in d, services))
@@ -58,9 +60,10 @@ class PatientInvoice(http.Controller):
                         analytic, payer_id, registration_date, representative, service.get('company_share', 0.0)))
                 message = "The Service %s has been registered successfully" % service.get(
                     'name', False)
+                str_message = message.replace("{", '-').replace("}", "-")
                 HandleResponse.success_response(service, message, reg_key, service_type=service_type)
                 result.append(
-                    {"code": 200, "success": True, "default_code": service.get('default_code'), "message": message})
+                    {"code": 200, "success": True, "default_code": service.get('default_code'), "message": str_message})
             patient_exist_draft_invoice_id = PatientInvoice.search_draft_invoice(patient_id, 'draft')
             if inv_lines:
                 if not patient_exist_draft_invoice_id:
@@ -121,7 +124,7 @@ class PatientInvoice(http.Controller):
     def create_draft_invoice(partner, registration_date, journal_id, accession_number, employee, doctor_id):
         draft_account_move = {
             'move_type': 'out_invoice',
-            'auto_post':'no',
+            'auto_post': 'no',
             'state': 'draft',
             'currency_id': request.env.company.currency_id.id,
             'company_id': request.env.company.id,
@@ -157,7 +160,7 @@ class PatientInvoice(http.Controller):
             'contract_id': contract_id,
             'product_id': product_id.get('id'),
             'journal_id': journal_id,
-            'analytic_account_id': analytic_account_id,
+            'analytic_distribution': {str(analytic_account_id): 100},
             'registration_date': registration_date,
             'quantity': 1,
             'price_unit': value_share,
@@ -165,7 +168,9 @@ class PatientInvoice(http.Controller):
         }
         if payer:
             if 'center_id' in payer:
-                dic['center_id'] = payer['center_id'].get('id') if payer['center_id'] else False,
+                # @todo: center id error
+                pass
+                # dic['center_id'] = payer['center_id'].get('id') if payer['center_id'] else False,
             if 'doctor_id' in payer:
                 dic['doctor_id'] = payer['doctor_id'].get('id') if payer['doctor_id'] else False,
             if 'partner_id' in payer:

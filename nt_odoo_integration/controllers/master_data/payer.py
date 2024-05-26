@@ -25,11 +25,11 @@ class Payer(http.Controller):
                 center_id = request.env.cr.fetchall()
                 if center_id:
                     center_id = {'id': center_id[0][0], 'name': center_id[0][1],
-                                  'separated_invoices': center_id[0][2]}
+                                 'separated_invoices': center_id[0][2]}
                 else:
                     center_id = {
                         'name': name,
-                        'display_name': name,
+                        'complete_name': name,
                         'ref': code,
                         'contact_type': 'customer',
                         'center': True,
@@ -38,8 +38,9 @@ class Payer(http.Controller):
                         'type': 'contact',
                         'center_code': code
                     }
-                    request.env.cr.execute("""INSERT INTO res_partner%s VALUES %s RETURNING id, name, separated_invoices;""" % (
-                    str(tuple(center_id.keys())).replace("'", ""), tuple(center_id.values())))
+                    request.env.cr.execute(
+                        """INSERT INTO res_partner%s VALUES %s RETURNING id, name, separated_invoices;""" % (
+                            str(tuple(center_id.keys())).replace("'", ""), tuple(center_id.values())))
                     center_id = request.env.cr.fetchall()
                     center_id = {'id': center_id[0][0], 'name': center_id[0][1], 'separated_invoices': center_id[0][2]}
 
@@ -57,7 +58,7 @@ class Payer(http.Controller):
                 doctor_id = request.env.cr.fetchall()
                 if doctor_id:
                     doctor_id = {'id': doctor_id[0][0], 'name': doctor_id[0][1],
-                                  'separated_invoices': doctor_id[0][2]}
+                                 'separated_invoices': doctor_id[0][2]}
                 else:
                     doctor_id = {
                         'name': name,
@@ -67,10 +68,12 @@ class Payer(http.Controller):
                         'doctor': True,
                         'active': True,
                         'type': 'contact',
-                        'doctor_code': code
+                        'doctor_code': code,
+                        'complete_name': name
                     }
-                    request.env.cr.execute("""INSERT INTO res_partner%s VALUES %s RETURNING id, name, separated_invoices;""" % (
-                    str(tuple(doctor_id.keys())).replace("'", ""), tuple(doctor_id.values())))
+                    request.env.cr.execute(
+                        """INSERT INTO res_partner%s VALUES %s RETURNING id, name, separated_invoices;""" % (
+                            str(tuple(doctor_id.keys())).replace("'", ""), tuple(doctor_id.values())))
                     doctor_id = request.env.cr.fetchall()
                     doctor_id = {'id': doctor_id[0][0], 'name': doctor_id[0][1], 'separated_invoices': doctor_id[0][2]}
 
@@ -88,6 +91,7 @@ class Payer(http.Controller):
         else:
             partner_id = {
                 'name': name,
+                'complete_name': name,
                 # 'display_name': name,
                 'ref': code,
                 'is_company': True,
@@ -97,7 +101,7 @@ class Payer(http.Controller):
             }
 
             request.env.cr.execute("""INSERT INTO res_partner%s VALUES %s RETURNING id, name, separated_invoices;""" % (
-            str(tuple(partner_id.keys())).replace("'", ""), tuple(partner_id.values())))
+                str(tuple(partner_id.keys())).replace("'", ""), tuple(partner_id.values())))
             partner_id = request.env.cr.fetchall()
 
             partner_id = {'id': partner_id[0][0], 'name': partner_id[0][1], 'separated_invoices': partner_id[0][2]}

@@ -28,6 +28,7 @@ class InsertVisit(http.Controller):
                 service_type='insert_visit', )
     def insert_visit(self):
         #
+        # get_json_data replaced request.jsonrequest
         response = request.get_json_data()
         if not response:
             return HandleResponse.error_response(False,
@@ -91,4 +92,4 @@ class InsertVisit(http.Controller):
                     str(datetime.now()), str(datetime.now()), user_id, body, 'insert_visit', response))
             return request.make_json_response({'code': 500, 'success': False, 'message': body}, status=500)
 
-        return {'code': 200, 'success': True, 'total_result': invoices_lines_values}
+        return request.make_json_response({'code': 200, 'success': True, 'total_result': invoices_lines_values})

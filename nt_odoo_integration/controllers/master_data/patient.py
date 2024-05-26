@@ -83,6 +83,7 @@ class Patient(http.Controller):
                 'type': 'contact',
                 'contact_type': 'customer',
                 'is_company': is_company,
+                'complete_name': patient.get('name', None)
             }
 
             patient_data = dict((k, v) for k, v in patient_data.items() if v is not None)
