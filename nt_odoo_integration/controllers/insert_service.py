@@ -17,7 +17,7 @@ invalid_child_data = ['payer']
 class InsertService(http.Controller):
     @validate_token
     @http.route('/api/v2/Walk_inPatient/InsertService', auth='none',
-                csrf=False, methods=['POST'], type='json',
+                csrf=False, methods=['POST'], type='http',
                 special_param='ldm', required_data=required_data, invalid_str_data=invalid_str_data,
                 service_type='insert_service',
                 invalid_child_data=invalid_child_data)

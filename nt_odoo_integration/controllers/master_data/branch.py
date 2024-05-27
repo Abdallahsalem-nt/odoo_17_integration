@@ -76,14 +76,20 @@ class Branch(http.Controller):
 
         if not analytic_id:
             account_analytic_id = {
-                'name': json.dumps({"en_US": name}),
+                'name': {"en_US": name},
                 'active': True,
                 'code': code,
                 'plan_id': plan_id
             }
 
-            request.env.cr.execute("""INSERT INTO account_analytic_account%s VALUES %s RETURNING id;""" % (
-                str(tuple(account_analytic_id.keys())).replace("'", ""), tuple(account_analytic_id.values())))
+            query = """
+                INSERT INTO account_analytic_account(name, active, code, plan_id) 
+                VALUES (%s::jsonb, %s, %s, %s) RETURNING id;
+            """
+
+            param = (json.dumps({"en_US": name}), True, code, plan_id)
+
+            request.env.cr.execute(query, param)
 
             analytic_id = request.env.cr.fetchall()
             analytic_id = analytic_id[0][0] if analytic_id else False
