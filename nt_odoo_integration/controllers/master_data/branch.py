@@ -66,12 +66,17 @@ class Branch(http.Controller):
         if not plan_id:
             plan_id_name = {'en_US': name}  # Create the JSON dictionary directly
 
-            request.env.cr.execute("""
-                INSERT INTO account_analytic_plan (name) 
-                VALUES (%s::jsonb)
+            # Properly parameterized query
+            query = """
+                INSERT INTO account_analytic_plan (name, parent_path) 
+                VALUES (%s::jsonb, %s)
                 RETURNING id;
-            """, (json.dumps(plan_id_name),))  # Parameterized query
+            """
+            params = (json.dumps(plan_id_name), '1/')  # Parameters to avoid SQL injection
 
+            request.env.cr.execute(query, params)
+
+            # Fetching the returned id
             plan_id = request.env.cr.fetchone()[0]
 
         if not analytic_id:
@@ -80,6 +85,7 @@ class Branch(http.Controller):
                 'active': True,
                 'code': code,
                 'plan_id': plan_id
+
             }
 
             query = """

@@ -53,15 +53,22 @@ class InsertService(http.Controller):
                                                      )
             payer_id = Payer.get_payer(response.get("payer", False))
             services = Service.get_product(response.get("services"), True)
-
+            analytic = next(iter(move_lines[0][3]))
             invoices_lines_values = PatientInvoice.get_patient_invoice(response.get("reg_key"),
-                                                                       response.get("accessionNumber"), services,
+                                                                       response.get("accession_number"),
+                                                                       services,
                                                                        datetime.strptime(response.get('updateDate'),
                                                                                          '%d/%m/%Y').date(),
                                                                        {'id': move_lines[0][1],
-                                                                        'name': move_lines[0][0]}, move_lines[0][4],
-                                                                       move_lines[0][2], 0, move_lines[0][3],
-                                                                       payer_id, False, False, 'service',
+                                                                        'name': move_lines[0][0]},
+                                                                       move_lines[0][4],
+                                                                       move_lines[0][2],
+                                                                       0,
+                                                                       analytic,
+                                                                       payer_id,
+                                                                       False,
+                                                                       False,
+                                                                       'service',
                                                                        service_type='insert_service')
 
         except Exception as e:

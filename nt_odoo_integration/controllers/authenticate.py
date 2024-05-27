@@ -159,7 +159,7 @@ def validate_token(func):
                 if token_expiration_check > 7:
                     result = {'code': 401, 'success': False,
                               'message': "Session Expired"}
-                    return result
+                    return request.make_json_response(result, status=401)
         # update request session user new method update_env in v17
         # request.session.uid = user_id
         # cant change user direct any more use this fun
@@ -196,10 +196,10 @@ class TokenAuthenticate(http.Controller):
             user_id = request.session.authenticate(db, username, password)
         except AccessDenied as e:
             result = {'code': 401, 'success': False, 'message': str(e)}
-            return result
+            return request.make_json_response(result, status=401)
         except Exception as e:
             result = {'code': 400, 'success': False, 'message': str(e)}
-            return result
+            return request.make_json_response(result, status=400)
         env = request.env(user=request.env.user.sudo().browse(user_id))
         token = env['res.users.apikeys'].sudo()._generate('rpc', username)
         request.env.cr.execute(f'''

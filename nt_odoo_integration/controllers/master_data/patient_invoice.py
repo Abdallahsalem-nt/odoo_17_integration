@@ -133,9 +133,11 @@ class PatientInvoice(http.Controller):
             'invoice_date': str(registration_date),
             'partner_id': partner.get('id', False),
             'journal_id': journal_id,
-            'accession_number': accession_number,
             'create_date': str(datetime.now()),
         }
+        if accession_number:
+            draft_account_move['accession_number'] = accession_number
+
         if doctor_id:
             if 'id' in doctor_id:
                 draft_account_move['doctor_id'] = doctor_id['id']
