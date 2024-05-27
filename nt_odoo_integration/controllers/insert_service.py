@@ -42,7 +42,7 @@ class InsertService(http.Controller):
 
                                                      )
 
-            request.env.cr.execute("""SELECT name, patient_id, journal_id,analytic_distribution-->'133', contract_id
+            request.env.cr.execute("""SELECT name, patient_id, journal_id,analytic_distribution, contract_id
             FROM account_move_line WHERE reg_key = '%s' AND payer_id IS NULL""" % response.get("reg_key"))
             move_lines = request.env.cr.fetchall()
             if not move_lines:

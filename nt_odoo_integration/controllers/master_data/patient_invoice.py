@@ -13,6 +13,7 @@ class PatientInvoice(http.Controller):
                             discount, analytic, payer_id, representative, employee, type='visit',
                             service_type='insert_visit'):
         result = []
+        # analytic = next(iter(analytic)) or None
         result.extend(list(filter(lambda d: 'code' in d, services)))
         services = list(filter(lambda d: 'code' not in d, services))
         if not services:
@@ -172,9 +173,9 @@ class PatientInvoice(http.Controller):
                 pass
                 dic['center_id'] = payer['center_id'].get('id') if payer['center_id'] else None,
             if 'doctor_id' in payer:
-                dic['doctor_id'] = payer['doctor_id'].get('id') if payer['doctor_id'] else False,
+                dic['doctor_id'] = payer['doctor_id'].get('id') if payer['doctor_id'] else None,
             if 'partner_id' in payer:
-                dic['payer_id'] = payer['partner_id'].get('id') if payer['partner_id'] else False,
+                dic['payer_id'] = payer['partner_id'].get('id') if payer['partner_id'] else None,
                 dic['service_payer_id'] = payer['partner_id'].get('id') if payer['partner_id'] else False,
             if 'payer' in payer:
                 dic['service_payer_id'] = payer['payer'].get('id') if payer['payer'] else False,
